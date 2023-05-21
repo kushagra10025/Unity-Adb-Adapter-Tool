@@ -19,7 +19,9 @@ namespace NP.AdapterCore
         public const string TOOL_VERSION = "v1.0.0";
 
         public const string ADB = "adb";
-        public const string ERROR_ADB_CLIENT_NULL = "AdbClient is null! Retry!";
+        public const string ADB_CMD_ANDROID_VERSION = "getprop ro.build.version.release";
+        public const string ADB_CMD_SDK_LEVEL = "getprop ro.build.version.sdk";
+        public const string ADB_ERROR_CLIENT_NULL = "AdbClient is null! Retry!";
     }
 
     public class AdbAdapter
@@ -92,12 +94,12 @@ namespace NP.AdapterCore
             _adbClient.StartApp(device, packageIdentifier);
         }
 
-        public void LaunchAppOnDevice(DeviceData device, string packageIdentifier, string specificActivity)
+        public string LaunchAppOnDevice(DeviceData device, string packageIdentifier, string specificActivity)
         {
             if (_adbClient == null)
-                return;
+                return AdapterCoreConstants.ADB_ERROR_CLIENT_NULL;
 
-            ExecuteRemoteCommandOnDevice(device, $"am start -n ${packageIdentifier}/${specificActivity}");
+            return ExecuteRemoteCommandOnDevice(device, $"am start -n ${packageIdentifier}/${specificActivity}");
         }
 
         public void StopAppOnDevice(DeviceData device, string packageIdentifier)
@@ -108,12 +110,12 @@ namespace NP.AdapterCore
             _adbClient.StopApp(device, packageIdentifier);
         }
 
-        public void CleanAppDataOnDevice(DeviceData device, string packageIdentifier)
+        public string CleanAppDataOnDevice(DeviceData device, string packageIdentifier)
         {
             if (_adbClient == null)
-                return;
+                return AdapterCoreConstants.ADB_ERROR_CLIENT_NULL;
 
-            ExecuteRemoteCommandOnDevice(device, $"pm clear ${packageIdentifier}");
+            return ExecuteRemoteCommandOnDevice(device, $"pm clear ${packageIdentifier}");
         }
 
         public void WakeUpDevice(DeviceData device)
@@ -144,10 +146,26 @@ namespace NP.AdapterCore
         #endregion
 
         #region Specific Device Functions
+        public string GetDeviceAndroidVersion(DeviceData device)
+        {
+            if (_adbClient == null)
+                return AdapterCoreConstants.ADB_ERROR_CLIENT_NULL;
+
+            return ExecuteRemoteCommandOnDevice(device, AdapterCoreConstants.ADB_CMD_ANDROID_VERSION);
+        }
+
+        public string GetDeviceAndroidSdkLevel(DeviceData device)
+        {
+            if (_adbClient == null)
+                return AdapterCoreConstants.ADB_ERROR_CLIENT_NULL;
+
+            return ExecuteRemoteCommandOnDevice(device, AdapterCoreConstants.ADB_CMD_SDK_LEVEL);
+        }
+
         public string ExecuteRemoteCommandOnDevice(DeviceData device, string command)
         {
             if (_adbClient == null)
-                return AdapterCoreConstants.ERROR_ADB_CLIENT_NULL;
+                return AdapterCoreConstants.ADB_ERROR_CLIENT_NULL;
 
             ConsoleOutputReceiver? outputReceiver = new ConsoleOutputReceiver();
             _adbClient.ExecuteRemoteCommand(command, device, outputReceiver);
@@ -169,7 +187,7 @@ namespace NP.AdapterCore
         public string PairDevice(IPEndPoint endPoint, string pairCode)
         {
             if (_adbClient == null)
-                return AdapterCoreConstants.ERROR_ADB_CLIENT_NULL;
+                return AdapterCoreConstants.ADB_ERROR_CLIENT_NULL;
 
             return _adbClient.Pair(endPoint, pairCode);
         }
@@ -177,7 +195,7 @@ namespace NP.AdapterCore
         public string ConnectDevice(IPEndPoint endPoint)
         {
             if (_adbClient == null)
-                return AdapterCoreConstants.ERROR_ADB_CLIENT_NULL;
+                return AdapterCoreConstants.ADB_ERROR_CLIENT_NULL;
 
             return _adbClient.Connect(endPoint);
         }
@@ -185,7 +203,7 @@ namespace NP.AdapterCore
         public string DisconnectDevice(DnsEndPoint endPoint)
         {
             if (_adbClient == null)
-                return AdapterCoreConstants.ERROR_ADB_CLIENT_NULL;
+                return AdapterCoreConstants.ADB_ERROR_CLIENT_NULL;
 
             return _adbClient.Disconnect(endPoint);
         }
