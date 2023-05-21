@@ -45,11 +45,10 @@ public class AdbAdapterMainEditor : EditorWindow
     [MenuItem("Tools/ADB Adapter/Open ADB Adapter Window")]
     public static void OpenAdbAdapterMainWindow()
     {
-        AdbAdapterMainEditor window = GetWindow<AdbAdapterMainEditor>();
-        window.titleContent = new GUIContent("ADB Adapter");
+        AdbAdapterMainEditor window = GetWindow<AdbAdapterMainEditor>(true, "ADB Adapter");
         window.maxSize = new Vector2(300, 400);
         window.minSize = window.maxSize;
-        window.ShowModalUtility();
+        window.ShowUtility();
     }
 
     private void CreateGUI()
@@ -105,7 +104,7 @@ public class AdbAdapterMainEditor : EditorWindow
         DeviceConnectBtn.clicked += DeviceConnectBtn_clicked;
         DeviceDisconnectBtn.clicked += DeviceDisconnectBtn_clicked;
         ApkBuildPathBrowseBtn.clicked += ApkBuildPathBrowseBtn_clicked;
-        
+
         // Core Function Buttons
         CoreBtnInstall.clicked += CoreBtnInstall_clicked;
         CoreBtnUninstall.clicked += CoreBtnUninstall_clicked;
@@ -142,6 +141,8 @@ public class AdbAdapterMainEditor : EditorWindow
 
     private void ApkBuildPathBrowseBtn_clicked()
     {
+        string apkFilePath = EditorUtility.OpenFilePanel("Select APK File", "", "apk");
+        Debug.Log(apkFilePath);
     }
 
     private void DeviceDisconnectBtn_clicked()

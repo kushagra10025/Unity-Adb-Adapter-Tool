@@ -15,6 +15,7 @@ namespace NP.AdapterCore
 
     public class AdapterCoreConstants
     {
+        public const string TOOL_NAME = "ADB Adapter";
         public const string TOOL_AUTHOR = "Kushagra Prakash";
         public const string TOOL_VERSION = "v1.0.0";
 
