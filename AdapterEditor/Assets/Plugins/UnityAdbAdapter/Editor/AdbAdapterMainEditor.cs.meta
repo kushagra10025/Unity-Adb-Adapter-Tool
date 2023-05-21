@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 4fdd6e22a689dbc49b2f5f497d5b5f74
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - m_ViewDataDictionary: {instanceID: 0}
+  - adbAdapterMainEditorUXML: {fileID: 9197481963319205126, guid: 8635bbd31236ef542b5bd6b9fa2e3ebe,
+      type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

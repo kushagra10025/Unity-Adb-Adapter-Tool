@@ -37,6 +37,10 @@
                 </ui:Foldout>
                 <ui:VisualElement>
                     <ui:TextField picking-mode="Ignore" label="Package Identifier" value="filler text" text="filler text" name="pkg-identifier-txt" tooltip="Unique Bundle Identifier. For Example - com.negativeproton.defaultapp" />
+                    <ui:VisualElement style="flex-direction: row; align-items: stretch; justify-content: space-between; padding-right: 3px; padding-left: 0; padding-top: 0; padding-bottom: 0;">
+                        <ui:TextField picking-mode="Ignore" label="APK Build Location" value="filler text" text="filler text" name="apk-build-path-txt" class="field-no-side-margin" style="width: 94%; padding-left: 3px;" />
+                        <ui:Button text="..." display-tooltip-when-elided="true" tooltip="Browse Path" name="btn-browse-apk-path" class="field-no-side-margin" style="width: 6%;" />
+                    </ui:VisualElement>
                     <ui:DropdownField label="Selected Device" index="0" choices="First, Second, Third, Fourth" name="connected-devices-dropdown" tooltip="Lists all Connected Devices and uses the Current Selection as Active Device." />
                     <ui:VisualElement>
                         <ui:VisualElement style="flex-direction: row; justify-content: center;">
