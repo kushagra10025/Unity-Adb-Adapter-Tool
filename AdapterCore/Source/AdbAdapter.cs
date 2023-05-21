@@ -1,4 +1,5 @@
 ﻿using AdvancedSharpAdbClient;
+using AdvancedSharpAdbClient.DeviceCommands;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,7 +34,6 @@ namespace NP.AdapterCore
 
         public AdbAdapter(string adbCustomPath, bool adbForceStartNew) : this(adbCustomPath, IPAddress.Loopback, AdbClient.AdbServerPort, adbForceStartNew)
         {
-
         }
 
         public AdbAdapter(string adbCustomPath, IPAddress abdServerIPAddress, int adbServerPort, bool adbForceStartNew)
@@ -48,12 +48,12 @@ namespace NP.AdapterCore
         {
             _adbClient = new AdbClient(new IPEndPoint(_adbServerIPAddress, _adbServerPort), Factories.AdbSocketFactory);
 
-            if(!AdbServer.Instance.GetStatus().IsRunning)
+            if (!AdbServer.Instance.GetStatus().IsRunning)
             {
                 _adbServer = new AdbServer(_adbClient, Factories.AdbCommandLineClientFactory);
                 string adbPath = GetExecutablePathFromEnvironmentVariable(AdapterCoreConstants.ADB) ?? string.Empty;
                 StartServerResult result = _adbServer.StartServer(string.IsNullOrEmpty(adbPath) ? _adbCustomPath : adbPath, _adbForceStartNew);
-                if(result != StartServerResult.Started)
+                if (result != StartServerResult.Started)
                 {
                     return AdbAdapter_InitStatus.Failed;
                 }
@@ -66,6 +66,82 @@ namespace NP.AdapterCore
 
             return AdbAdapter_InitStatus.Successful;
         }
+
+        #region Core Helper Functions
+        public void InstallPackageOnDevice(DeviceData device, string apkFilePath)
+        {
+            if (_adbClient == null)
+                return;
+
+            _adbClient.Install(device, File.OpenRead(apkFilePath));
+        }
+
+        public void UninstallPackageOnDevice(DeviceData device, string packageIdentifier)
+        {
+            if (_adbClient == null)
+                return;
+
+            _adbClient.UninstallPackage(device, packageIdentifier);
+        }
+
+        public void LaunchAppOnDevice(DeviceData device, string packageIdentifier)
+        {
+            if (_adbClient == null)
+                return;
+
+            _adbClient.StartApp(device, packageIdentifier);
+        }
+
+        public void LaunchAppOnDevice(DeviceData device, string packageIdentifier, string specificActivity)
+        {
+            if (_adbClient == null)
+                return;
+
+            ExecuteRemoteCommandOnDevice(device, $"am start -n ${packageIdentifier}/${specificActivity}");
+        }
+
+        public void StopAppOnDevice(DeviceData device, string packageIdentifier)
+        {
+            if (_adbClient == null)
+                return;
+
+            _adbClient.StopApp(device, packageIdentifier);
+        }
+
+        public void CleanAppDataOnDevice(DeviceData device, string packageIdentifier)
+        {
+            if (_adbClient == null)
+                return;
+
+            ExecuteRemoteCommandOnDevice(device, $"pm clear ${packageIdentifier}");
+        }
+
+        public void WakeUpDevice(DeviceData device)
+        {
+            if (_adbClient == null)
+                return;
+
+            SimulateDeviceCustomKeyEvent(device, "KEYCODE_WAKEUP");
+        }
+        #endregion
+
+        #region KeyEvents Functions
+        public void PressDeviceBackButton(DeviceData device)
+        {
+            if (_adbClient == null)
+                return;
+
+            _adbClient.BackBtn(device);
+        }
+
+        public void PressDeviceHomeButton(DeviceData device)
+        {
+            if (_adbClient == null)
+                return;
+
+            _adbClient.HomeBtn(device);
+        }
+        #endregion
 
         #region Specific Device Functions
         public string ExecuteRemoteCommandOnDevice(DeviceData device, string command)
@@ -80,7 +156,13 @@ namespace NP.AdapterCore
             return result;
         }
 
+        public void SimulateDeviceCustomKeyEvent(DeviceData device, string keyCode)
+        {
+            if (_adbClient == null)
+                return;
 
+            _adbClient.SendKeyEvent(device, keyCode);
+        }
         #endregion
 
         #region General Device Functions
@@ -94,7 +176,7 @@ namespace NP.AdapterCore
 
         public string ConnectDevice(IPEndPoint endPoint)
         {
-            if(_adbClient == null)
+            if (_adbClient == null)
                 return AdapterCoreConstants.ERROR_ADB_CLIENT_NULL;
 
             return _adbClient.Connect(endPoint);
@@ -110,7 +192,7 @@ namespace NP.AdapterCore
 
         public DeviceData? GetDeviceAtIndex(int index)
         {
-            if(_adbClient == null)
+            if (_adbClient == null)
                 return null;
 
             return GetAllConnectedDevices().ElementAt<DeviceData>(index);
@@ -118,7 +200,7 @@ namespace NP.AdapterCore
 
         public IEnumerable<DeviceData> GetAllConnectedDevices()
         {
-            if(_adbClient == null)
+            if (_adbClient == null)
                 return Enumerable.Empty<DeviceData>();
 
             return _adbClient.GetDevices();
