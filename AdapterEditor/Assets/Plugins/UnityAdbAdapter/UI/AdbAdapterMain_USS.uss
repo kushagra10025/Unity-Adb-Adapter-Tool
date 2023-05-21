@@ -1,0 +1,73 @@
+.main-header {
+    height: 45px;
+    background-color: rgba(90, 90, 90, 255);
+    min-height: 45px;
+    max-height: 45px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.tool-content {
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.main-header-txt1 {
+    font-size: 16px;
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+    height: 60%;
+    max-height: 60%;
+    min-height: 60%;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.main-header-txt2 {
+    font-size: 8px;
+    -unity-text-align: middle-right;
+    -unity-font-style: italic;
+    height: 40%;
+    max-height: 40%;
+    min-height: 40%;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.field-no-side-margin {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 1px;
+    margin-bottom: 1px;
+}
+
+.section-heading-txt {
+    -unity-text-align: upper-center;
+    -unity-font-style: bold;
+    background-color: rgba(160, 0, 160, 255);
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(60, 60, 60, 255);
+    border-right-color: rgba(60, 60, 60, 255);
+    border-top-color: rgba(60, 60, 60, 255);
+    border-bottom-color: rgba(60, 60, 60, 255);
+}
+
+.icon-btn {
+    width: 24px;
+    height: 24px;
+}

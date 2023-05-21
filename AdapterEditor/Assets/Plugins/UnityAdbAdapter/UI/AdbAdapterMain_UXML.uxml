@@ -1,3 +1,67 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <Style src="project://database/Assets/Plugins/UnityAdbAdapter/UI/AdbAdapterMain_USS.uss?fileID=7433441132597879392&amp;guid=4af9248297ddcde4394cc8777558eaf8&amp;type=3#AdbAdapterMain_USS" />
+    <ui:VisualElement name="main-header" class="main-header">
+        <ui:Label text="Unity Adb Adapter" display-tooltip-when-elided="true" name="tool-name-lbl" class="main-header-txt1" />
+        <ui:Label text="{Author} / {Version}" display-tooltip-when-elided="true" name="tool-author-version-lbl" class="main-header-txt2" />
+    </ui:VisualElement>
+    <ui:VisualElement name="tool-content" class="tool-content">
+        <ui:Foldout text="Adb Configurations" value="false" name="adb-config-foldout">
+            <ui:VisualElement>
+                <ui:TextField picking-mode="Ignore" label="EXE Path" value="filler text" text="filler text" name="adb-path-txt" class="field-no-margin field-no-side-margin" />
+                <ui:TextField picking-mode="Ignore" label="Server IP Address" value="filler text" text="filler text" name="adb-server-ip-txt" class="field-no-side-margin" />
+                <ui:TextField picking-mode="Ignore" label="Server IP Port" value="filler text" text="filler text" name="adb-server-port-txt" class="field-no-side-margin" />
+                <ui:Toggle label="Force Restart Server?" name="adb-server-force-toggle" class="field-no-side-margin" />
+            </ui:VisualElement>
+        </ui:Foldout>
+        <ui:Button text="Initialize ADB Server" display-tooltip-when-elided="true" name="btn-adb-server-init" class="field-no-side-margin" />
+        <ui:VisualElement name="section-actions">
+            <ui:Label text="Actions" display-tooltip-when-elided="true" name="section-actions-lbl" class="section-heading-txt" />
+            <ui:VisualElement name="section-actions-content">
+                <ui:Foldout text="Device Connection" value="false" name="device-connection-foldout">
+                    <ui:VisualElement>
+                        <ui:Foldout text="Pair Device" value="false" name="device-pairing-foldout" style="margin-left: 5%; align-items: stretch; margin-right: 0; margin-top: 0; margin-bottom: 0;">
+                            <ui:TextField picking-mode="Ignore" label="Pairing IP Address" value="filler text" text="filler text" name="pair-ip-txt" />
+                            <ui:TextField picking-mode="Ignore" label="Pairing Port" value="filler text" text="filler text" name="pair-port-txt" />
+                            <ui:TextField picking-mode="Ignore" label="Pairing Code" value="filler text" text="filler text" name="pair-code-txt" />
+                            <ui:VisualElement style="align-items: flex-end; flex-direction: row; justify-content: flex-end;">
+                                <ui:Button text="Pair" display-tooltip-when-elided="true" name="btn-pair" />
+                            </ui:VisualElement>
+                        </ui:Foldout>
+                        <ui:TextField picking-mode="Ignore" label="IP Address" value="filler text" text="filler text" name="device-ip-txt" />
+                        <ui:TextField picking-mode="Ignore" label="IP Port" value="filler text" text="filler text" name="device-port-txt" />
+                        <ui:VisualElement style="align-items: flex-end; flex-direction: row; justify-content: flex-end;">
+                            <ui:Button text="Connect" display-tooltip-when-elided="true" name="btn-device-connect" />
+                            <ui:Button text="Disconnect" display-tooltip-when-elided="true" name="btn-device-disconnect" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:Foldout>
+                <ui:VisualElement>
+                    <ui:TextField picking-mode="Ignore" label="Package Identifier" value="filler text" text="filler text" name="pkg-identifier-txt" tooltip="Unique Bundle Identifier. For Example - com.negativeproton.defaultapp" />
+                    <ui:DropdownField label="Selected Device" index="0" choices="First, Second, Third, Fourth" name="connected-devices-dropdown" tooltip="Lists all Connected Devices and uses the Current Selection as Active Device." />
+                    <ui:VisualElement>
+                        <ui:VisualElement style="flex-direction: row; justify-content: center;">
+                            <ui:Button display-tooltip-when-elided="true" name="btn-install" tooltip="Install Package" style="padding-left: 6px; padding-right: 6px; padding-top: 6px; padding-bottom: 6px;">
+                                <ui:VisualElement class="icon-btn" style="background-image: url(&apos;project://database/Assets/Plugins/UnityAdbAdapter/UI/Icons/install-100.png?fileID=2800000&amp;guid=57198b1bc222c204c93d230555efbc75&amp;type=3#install-100&apos;);" />
+                            </ui:Button>
+                            <ui:Button display-tooltip-when-elided="true" name="btn-uninstall" tooltip="Uninstall Package" style="padding-left: 6px; padding-right: 6px; padding-top: 6px; padding-bottom: 6px;">
+                                <ui:VisualElement class="icon-btn" style="background-image: url(&apos;project://database/Assets/Plugins/UnityAdbAdapter/UI/Icons/uninstall-100.png?fileID=2800000&amp;guid=8bc18879f680c96439cc6aa7131ded76&amp;type=3#uninstall-100&apos;);" />
+                            </ui:Button>
+                            <ui:Button display-tooltip-when-elided="true" name="btn-launch" tooltip="Launch App" style="padding-left: 6px; padding-right: 6px; padding-top: 6px; padding-bottom: 6px;">
+                                <ui:VisualElement class="icon-btn" style="background-image: url(&apos;project://database/Assets/Plugins/UnityAdbAdapter/UI/Icons/launch-100.png?fileID=2800000&amp;guid=d7b3ff215a54db248a0850b93c1d9749&amp;type=3#launch-100&apos;);" />
+                            </ui:Button>
+                            <ui:Button display-tooltip-when-elided="true" name="btn-force-stop" tooltip="Force Stop App" style="padding-left: 6px; padding-right: 6px; padding-top: 6px; padding-bottom: 6px;">
+                                <ui:VisualElement class="icon-btn" style="background-image: url(&apos;project://database/Assets/Plugins/UnityAdbAdapter/UI/Icons/stop-100.png?fileID=2800000&amp;guid=58fb6a00cfd9aad49b88a5320e247285&amp;type=3#stop-100&apos;);" />
+                            </ui:Button>
+                            <ui:Button display-tooltip-when-elided="true" name="btn-clear" tooltip="Clean App Data" style="padding-left: 6px; padding-right: 6px; padding-top: 6px; padding-bottom: 6px;">
+                                <ui:VisualElement class="icon-btn" style="background-image: url(&apos;project://database/Assets/Plugins/UnityAdbAdapter/UI/Icons/clear-100.png?fileID=2800000&amp;guid=c32518efb7f2639499953a553c12093e&amp;type=3#clear-100&apos;);" />
+                            </ui:Button>
+                            <ui:Button display-tooltip-when-elided="true" name="btn-wake-up" tooltip="Wake Up Device" style="padding-left: 6px; padding-right: 6px; padding-top: 6px; padding-bottom: 6px;">
+                                <ui:VisualElement class="icon-btn" style="background-image: url(&apos;project://database/Assets/Plugins/UnityAdbAdapter/UI/Icons/sleeping-in-bed-100.png?fileID=2800000&amp;guid=a419d7bb7065cfa4c9ed62013319360e&amp;type=3#sleeping-in-bed-100&apos;);" />
+                            </ui:Button>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
 </ui:UXML>
