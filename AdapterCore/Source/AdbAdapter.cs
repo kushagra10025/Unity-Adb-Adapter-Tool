@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 
 namespace NP.AdapterCore
@@ -11,12 +12,13 @@ namespace NP.AdapterCore
         Successful, Failed
     }
 
-    public class AdapteCoreConstants
+    public class AdapterCoreConstants
     {
         public const string TOOL_AUTHOR = "Kushagra Prakash";
         public const string TOOL_VERSION = "v1.0.0";
 
         public const string ADB = "adb";
+        public const string ERROR_ADB_CLIENT_NULL = "AdbClient is null! Retry!";
     }
 
     public class AdbAdapter
@@ -49,7 +51,7 @@ namespace NP.AdapterCore
             if(!AdbServer.Instance.GetStatus().IsRunning)
             {
                 _adbServer = new AdbServer(_adbClient, Factories.AdbCommandLineClientFactory);
-                string adbPath = GetExecutablePathFromEnvironmentVariable(AdapteCoreConstants.ADB) ?? string.Empty;
+                string adbPath = GetExecutablePathFromEnvironmentVariable(AdapterCoreConstants.ADB) ?? string.Empty;
                 StartServerResult result = _adbServer.StartServer(string.IsNullOrEmpty(adbPath) ? _adbCustomPath : adbPath, _adbForceStartNew);
                 if(result != StartServerResult.Started)
                 {
@@ -65,7 +67,63 @@ namespace NP.AdapterCore
             return AdbAdapter_InitStatus.Successful;
         }
 
+        #region Specific Device Functions
+        public string ExecuteRemoteCommandOnDevice(DeviceData device, string command)
+        {
+            if (_adbClient == null)
+                return AdapterCoreConstants.ERROR_ADB_CLIENT_NULL;
 
+            ConsoleOutputReceiver? outputReceiver = new ConsoleOutputReceiver();
+            _adbClient.ExecuteRemoteCommand(command, device, outputReceiver);
+            string result = outputReceiver.ToString();
+            outputReceiver = null;
+            return result;
+        }
+
+
+        #endregion
+
+        #region General Device Functions
+        public string PairDevice(IPEndPoint endPoint, string pairCode)
+        {
+            if (_adbClient == null)
+                return AdapterCoreConstants.ERROR_ADB_CLIENT_NULL;
+
+            return _adbClient.Pair(endPoint, pairCode);
+        }
+
+        public string ConnectDevice(IPEndPoint endPoint)
+        {
+            if(_adbClient == null)
+                return AdapterCoreConstants.ERROR_ADB_CLIENT_NULL;
+
+            return _adbClient.Connect(endPoint);
+        }
+
+        public string DisconnectDevice(DnsEndPoint endPoint)
+        {
+            if (_adbClient == null)
+                return AdapterCoreConstants.ERROR_ADB_CLIENT_NULL;
+
+            return _adbClient.Disconnect(endPoint);
+        }
+
+        public DeviceData? GetDeviceAtIndex(int index)
+        {
+            if(_adbClient == null)
+                return null;
+
+            return GetAllConnectedDevices().ElementAt<DeviceData>(index);
+        }
+
+        public IEnumerable<DeviceData> GetAllConnectedDevices()
+        {
+            if(_adbClient == null)
+                return Enumerable.Empty<DeviceData>();
+
+            return _adbClient.GetDevices();
+        }
+        #endregion
 
         #region Utils
         internal static string? GetExecutablePathFromEnvironmentVariable(string exeName)
