@@ -1,9 +1,102 @@
-﻿using System;
+﻿using AdvancedSharpAdbClient;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Net;
 
 namespace NP.AdapterCore
 {
+    public enum AdbAdapter_InitStatus
+    {
+        Successful, Failed
+    }
+
+    public class AdapteCoreConstants
+    {
+        public const string TOOL_AUTHOR = "Kushagra Prakash";
+        public const string TOOL_VERSION = "v1.0.0";
+
+        public const string ADB = "adb";
+    }
+
     public class AdbAdapter
     {
+        private IPAddress _adbServerIPAddress;
+        private int _adbServerPort;
+        private string _adbCustomPath;
+        private bool _adbForceStartNew;
 
+        private AdbServer? _adbServer;
+        private AdbClient? _adbClient;
+
+        public AdbAdapter(string adbCustomPath, bool adbForceStartNew) : this(adbCustomPath, IPAddress.Loopback, AdbClient.AdbServerPort, adbForceStartNew)
+        {
+
+        }
+
+        public AdbAdapter(string adbCustomPath, IPAddress abdServerIPAddress, int adbServerPort, bool adbForceStartNew)
+        {
+            _adbCustomPath = adbCustomPath;
+            _adbServerIPAddress = abdServerIPAddress;
+            _adbServerPort = adbServerPort;
+            _adbForceStartNew = adbForceStartNew;
+        }
+
+        public AdbAdapter_InitStatus Initialize()
+        {
+            _adbClient = new AdbClient(new IPEndPoint(_adbServerIPAddress, _adbServerPort), Factories.AdbSocketFactory);
+
+            if(!AdbServer.Instance.GetStatus().IsRunning)
+            {
+                _adbServer = new AdbServer(_adbClient, Factories.AdbCommandLineClientFactory);
+                string adbPath = GetExecutablePathFromEnvironmentVariable(AdapteCoreConstants.ADB) ?? string.Empty;
+                StartServerResult result = _adbServer.StartServer(string.IsNullOrEmpty(adbPath) ? _adbCustomPath : adbPath, _adbForceStartNew);
+                if(result != StartServerResult.Started)
+                {
+                    return AdbAdapter_InitStatus.Failed;
+                }
+                return AdbAdapter_InitStatus.Successful;
+            }
+            else
+            {
+                _adbServer = (AdbServer)AdbServer.Instance;
+            }
+
+            return AdbAdapter_InitStatus.Successful;
+        }
+
+
+
+        #region Utils
+        internal static string? GetExecutablePathFromEnvironmentVariable(string exeName)
+        {
+            List<string> paths = GetEnvironmentVariablesInMachine();
+            foreach (string path in paths)
+            {
+                string t_path = path;
+                if (File.Exists(t_path = Path.Combine(path, exeName)))
+                {
+                    return t_path;
+                }
+            }
+            return null;
+        }
+
+        internal static List<string> GetEnvironmentVariablesInMachine()
+        {
+            List<string> variablePaths = new List<string>();
+
+            foreach (string variablePath in (Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Machine) ?? "").Split(';'))
+            {
+                string t_variablePath = variablePath.Trim();
+                if (!string.IsNullOrEmpty(t_variablePath))
+                {
+                    variablePaths.Add(t_variablePath);
+                }
+            }
+
+            return variablePaths;
+        }
+        #endregion
     }
 }
