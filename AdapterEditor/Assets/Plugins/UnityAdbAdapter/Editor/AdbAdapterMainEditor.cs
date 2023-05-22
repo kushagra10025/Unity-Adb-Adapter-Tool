@@ -1,12 +1,30 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEditor;
-using UnityEditor.ShortcutManagement;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+[Serializable]
+public class AdbAdapterEditorSaveData
+{
+    public string AdbCustomPath;
+    public string AdbServerIP;
+    public string AdbServerPort;
+    public bool AdbForceStartNew;
+
+    public string PairingIP;
+    public string PairingPort;
+    public string PairingCode;
+
+    public string DeviceConnectionIP;
+    public string DeviceConnectionPort;
+
+    public string AppPackageIdentifier;
+    public string AppApkBuildPath;
+}
+
 public class AdbAdapterMainEditor : EditorWindow
 {
+    public const string ADB_ADAPTER_MAIN_EDITOR_PREFS_KEY = "ADBAdapter_MainEditor_Prefs";
 
     private Label AuthorVersionLbl;
 
@@ -41,14 +59,32 @@ public class AdbAdapterMainEditor : EditorWindow
     private Button CoreBtnClearData;
     private Button CoreBtnWakeup;
 
-    [Shortcut("Tools/ADB Adapter/Open ADB Adapter Window", KeyCode.I, ShortcutModifiers.Control | ShortcutModifiers.Shift)]
-    [MenuItem("Tools/ADB Adapter/Open ADB Adapter Window")]
+    [HideInInspector][SerializeField] private AdbAdapterEditorSaveData adbAdapterEditorSaveData;
+
+    [MenuItem("Tools/ADB Adapter/Open ADB Adapter Window %#i")]
     public static void OpenAdbAdapterMainWindow()
     {
         AdbAdapterMainEditor window = GetWindow<AdbAdapterMainEditor>(true, "ADB Adapter");
         window.maxSize = new Vector2(300, 400);
         window.minSize = window.maxSize;
         window.ShowUtility();
+    }
+
+    private void OnEnable()
+    {
+        // TODO Improve Save Conditions -> Currently Save/Load when Window Enabled and Disabled
+        string data = EditorPrefs.GetString(ADB_ADAPTER_MAIN_EDITOR_PREFS_KEY, EditorJsonUtility.ToJson(this, false));
+        JsonUtility.FromJsonOverwrite(data, this);
+    }
+
+    private void OnDisable()
+    {
+        string data = JsonUtility.ToJson(this, false);
+        EditorPrefs.SetString(ADB_ADAPTER_MAIN_EDITOR_PREFS_KEY, data);
+    }
+
+    private void OnGUI()
+    {
     }
 
     private void CreateGUI()
@@ -64,7 +100,7 @@ public class AdbAdapterMainEditor : EditorWindow
 
         root.Add(mainEditorUXML.Instantiate());
 
-        // Assign Elements
+        #region Assigned Elements from UXML
         AuthorVersionLbl = root.Q<Label>("tool-author-version-lbl");
 
         AdbConfigFoldout = root.Q<Foldout>("adb-config-foldout");
@@ -97,6 +133,24 @@ public class AdbAdapterMainEditor : EditorWindow
         CoreBtnStop = root.Q<Button>("btn-force-stop");
         CoreBtnClearData = root.Q<Button>("btn-clear");
         CoreBtnWakeup = root.Q<Button>("btn-wake-up");
+        #endregion
+
+        #region RegisterCallbacks
+        AdbCustomPathTxt.RegisterValueChangedCallback<string>(AdbCustomPath_valueChanged);
+        AdbServerIpTxt.RegisterValueChangedCallback<string>(AdbServerIp_valueChanged);
+        AdbServerPortTxt.RegisterValueChangedCallback<string>(AdbServerPort_valueChanged);
+        AdbServerForceTgl.RegisterValueChangedCallback<bool>(AdbServerForce_valueChanged);
+
+        PairingIpTxt.RegisterValueChangedCallback<string>(PairingIP_valueChanged);
+        PairingPortTxt.RegisterValueChangedCallback<string>(PairingPort_valueChanged);
+        PairingCodeTxt.RegisterValueChangedCallback<string>(PairingCode_valueChanged);
+
+        DeviceConnectionIpTxt.RegisterValueChangedCallback<string>(DeviceConnectionIP_valueChanged);
+        DeviceConnectionPortTxt.RegisterValueChangedCallback<string>(DeviceConnectionPort_valueChanged);
+
+        PkgIdentifierTxt.RegisterValueChangedCallback<string>(PkgIdentifier_valueChanged);
+        ApkBuildPathTxt.RegisterValueChangedCallback<string>(ApkBuildPath_valueChanged);
+        #endregion
 
         #region Buttons Clicked
         AdbServerInitBtn.clicked += AdbServerInitBtn_clicked;
@@ -113,8 +167,112 @@ public class AdbAdapterMainEditor : EditorWindow
         CoreBtnClearData.clicked += CoreBtnClearData_clicked;
         CoreBtnWakeup.clicked += CoreBtnWakeup_clicked;
         #endregion
+
+        LoadSavedValues();
     }
 
+    #region Value Changed Callbacks
+    private void ApkBuildPath_valueChanged(ChangeEvent<string> evt)
+    {
+        if (!string.IsNullOrEmpty(evt.newValue))
+        {
+            adbAdapterEditorSaveData.AppApkBuildPath = evt.newValue;
+            ApkBuildPathTxt.value = evt.newValue;
+        }
+    }
+
+    private void PkgIdentifier_valueChanged(ChangeEvent<string> evt)
+    {
+        if (!string.IsNullOrEmpty(evt.newValue))
+        {
+            adbAdapterEditorSaveData.AppPackageIdentifier = evt.newValue;
+            PkgIdentifierTxt.value = evt.newValue;
+        }
+    }
+
+    private void DeviceConnectionPort_valueChanged(ChangeEvent<string> evt)
+    {
+        if (!string.IsNullOrEmpty(evt.newValue))
+        {
+            adbAdapterEditorSaveData.DeviceConnectionPort = evt.newValue;
+            DeviceConnectionPortTxt.value = evt.newValue;
+        }
+    }
+
+    private void DeviceConnectionIP_valueChanged(ChangeEvent<string> evt)
+    {
+        if (!string.IsNullOrEmpty(evt.newValue))
+        {
+            adbAdapterEditorSaveData.DeviceConnectionIP = evt.newValue;
+            DeviceConnectionIpTxt.value = evt.newValue;
+        }
+    }
+
+    private void PairingCode_valueChanged(ChangeEvent<string> evt)
+    {
+        if (!string.IsNullOrEmpty(evt.newValue))
+        {
+            adbAdapterEditorSaveData.PairingCode = evt.newValue;
+            PairingCodeTxt.value = evt.newValue;
+        }
+    }
+
+    private void PairingPort_valueChanged(ChangeEvent<string> evt)
+    {
+        if (!string.IsNullOrEmpty(evt.newValue))
+        {
+            adbAdapterEditorSaveData.PairingPort = evt.newValue;
+            PairingPortTxt.value = evt.newValue;
+        }
+    }
+
+    private void PairingIP_valueChanged(ChangeEvent<string> evt)
+    {
+        if (!string.IsNullOrEmpty(evt.newValue))
+        {
+            adbAdapterEditorSaveData.PairingIP = evt.newValue;
+            PairingIpTxt.value = evt.newValue;
+        }
+    }
+
+    private void AdbServerForce_valueChanged(ChangeEvent<bool> evt)
+    {
+        if (evt != null)
+        {
+            adbAdapterEditorSaveData.AdbForceStartNew = evt.newValue;
+            AdbServerForceTgl.value = evt.newValue;
+        }
+    }
+
+    private void AdbServerPort_valueChanged(ChangeEvent<string> evt)
+    {
+        if (!string.IsNullOrEmpty(evt.newValue))
+        {
+            adbAdapterEditorSaveData.AdbServerPort = evt.newValue;
+            AdbServerPortTxt.value = evt.newValue;
+        }
+    }
+
+    private void AdbServerIp_valueChanged(ChangeEvent<string> evt)
+    {
+        if (!string.IsNullOrEmpty(evt.newValue))
+        {
+            adbAdapterEditorSaveData.AdbServerIP = evt.newValue;
+            AdbServerIpTxt.value = evt.newValue;
+        }
+    }
+
+    private void AdbCustomPath_valueChanged(ChangeEvent<string> evt)
+    {
+        if (!string.IsNullOrEmpty(evt.newValue))
+        {
+            adbAdapterEditorSaveData.AdbCustomPath = evt.newValue;
+            AdbCustomPathTxt.value = evt.newValue;
+        }
+    }
+    #endregion
+
+    #region Core Function Buttons OnClicked
     private void CoreBtnWakeup_clicked()
     {
     }
@@ -138,11 +296,14 @@ public class AdbAdapterMainEditor : EditorWindow
     private void CoreBtnInstall_clicked()
     {
     }
+    #endregion
 
+    #region Functionality Buttons OnClicked
     private void ApkBuildPathBrowseBtn_clicked()
     {
         string apkFilePath = EditorUtility.OpenFilePanel("Select APK File", "", "apk");
-        Debug.Log(apkFilePath);
+        //adbAdapterEditorSaveData.AppApkBuildPath = apkFilePath;
+        ApkBuildPathTxt.value = apkFilePath;
     }
 
     private void DeviceDisconnectBtn_clicked()
@@ -160,4 +321,24 @@ public class AdbAdapterMainEditor : EditorWindow
     private void AdbServerInitBtn_clicked()
     {
     }
+    #endregion
+
+    private void LoadSavedValues()
+    {
+        AdbCustomPathTxt.value = adbAdapterEditorSaveData.AdbCustomPath;
+        AdbServerIpTxt.value = adbAdapterEditorSaveData.AdbServerIP;
+        AdbServerPortTxt.value = adbAdapterEditorSaveData.AdbServerPort;
+        AdbServerForceTgl.value = adbAdapterEditorSaveData.AdbForceStartNew;
+
+        PairingIpTxt.value = adbAdapterEditorSaveData.PairingIP;
+        PairingPortTxt.value = adbAdapterEditorSaveData.PairingPort;
+        PairingCodeTxt.value = adbAdapterEditorSaveData.PairingCode;
+
+        DeviceConnectionIpTxt.value = adbAdapterEditorSaveData.DeviceConnectionIP;
+        DeviceConnectionPortTxt.value = adbAdapterEditorSaveData.DeviceConnectionPort;
+
+        PkgIdentifierTxt.value = adbAdapterEditorSaveData.AppPackageIdentifier;
+        ApkBuildPathTxt.value = adbAdapterEditorSaveData.AppApkBuildPath;
+    }
+
 }
